@@ -79,3 +79,35 @@ python runway_text_to_video.py -h
 ## Note on Models and Parameters
 
 The available models, their parameters (like supported resolutions, duration limits), and pricing are subject to change by RunwayML. Please refer to the [official RunwayML API documentation](https://docs.dev.runwayml.com/) for the most up-to-date information.
+
+---
+
+## Web Interface (`app_gradio.py`)
+
+A Gradio-based web interface is also provided for easy interaction with the text-to-video generation functionality.
+
+### Running the Gradio App
+
+1.  **Ensure Setup is Complete:**
+    Follow the "Setup for both scripts" section above. Make sure to install all dependencies from `requirements.txt`, which now includes `gradio`:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    And ensure your `RUNWAY_API_KEY` environment variable is set.
+
+2.  **Launch the App:**
+    Navigate to the project directory in your terminal and run:
+    ```bash
+    python app_gradio.py
+    ```
+
+3.  **Open in Browser:**
+    The script will output a local URL (usually `http://127.0.0.1:7860` or similar). Open this URL in your web browser to use the interface.
+
+### Features
+
+*   User-friendly interface for text prompt, duration, resolution, model selection, and seed.
+*   Displays the generated video directly in the browser.
+*   Provides real-time progress updates and error messages within the UI.
+*   Requires the `RUNWAY_API_KEY` environment variable to be set.
+*   Output videos are saved in a `gradio_outputs` subdirectory within the project folder.
