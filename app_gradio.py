@@ -105,69 +105,126 @@ def generate_video_from_text_internal(api_key, text_prompt, output_video_path, t
         raise gr.Error("Failed to download the generated video after successful generation.")
 
 
+from models_opensource import generate_video_modelscope # Import the new function
+
 # Gradio interface function
-def gradio_interface(prompt, duration_sec, resolution_str, t2i_model, i2v_model, seed_val):
-    print(f"Gradio interface called with prompt: {prompt}")
-    api_key = os.environ.get("RUNWAY_API_KEY")
-    if not api_key:
-        # Gradio provides gr.Error to show errors in the UI
-        raise gr.Error("RUNWAY_API_KEY environment variable not set.")
+def gradio_interface(selected_model, prompt, duration_sec, resolution_str, t2i_model_runway, i2v_model_runway, seed_val):
+    print(f"Gradio interface called with prompt: '{prompt}' for model: {selected_model}")
 
-    # Define a unique output path for each generation, perhaps in a temporary directory
-    # For simplicity, placing it in the current directory with a timestamp or random name.
-    # Gradio handles temporary files well if the output component expects a filepath.
-    # Let's create a directory for outputs if it doesn't exist.
+    # Common output directory and filename generation
     os.makedirs("gradio_outputs", exist_ok=True)
-    output_filename = f"gradio_outputs/video_{abs(hash(prompt + str(seed_val)))}.mp4" # Simple unique name
+    # Add model name to output filename for clarity
+    output_filename = f"gradio_outputs/{selected_model.replace('/', '_')}_video_{abs(hash(prompt + str(seed_val)))}.mp4"
 
+    processed_seed = int(seed_val) if seed_val and int(seed_val) != 0 else None
+
+    video_path = None
     try:
-        # Convert seed_val to int, None if 0 or empty
-        processed_seed = int(seed_val) if seed_val and int(seed_val) != 0 else None
+        if selected_model == "RunwayML":
+            gr.Info("Using RunwayML for generation...")
+            api_key = os.environ.get("RUNWAY_API_KEY")
+            if not api_key:
+                raise gr.Error("RUNWAY_API_KEY environment variable not set for RunwayML.")
 
-        # Call the internal function that encapsulates the logic from runway_text_to_video.py
-        video_path = generate_video_from_text_internal(
-            api_key,
-            prompt,
-            output_filename,
-            t2i_model,
-            i2v_model,
-            duration_sec,
-            resolution_str,
-            processed_seed
-        )
-        return video_path
-    except TaskFailedError as e:
+            video_path = generate_video_from_text_internal( # This is the existing RunwayML logic
+                api_key,
+                prompt,
+                output_filename,
+                t2i_model_runway, # Specific to RunwayML
+                i2v_model_runway, # Specific to RunwayML
+                duration_sec,     # Used by RunwayML
+                resolution_str,   # Used by RunwayML
+                processed_seed
+            )
+        elif selected_model == "damo-vilab/text-to-video-ms-1.7b":
+            gr.Info(f"Using ModelScopeT2V ({selected_model}) for generation. This may take time and requires a local GPU.")
+            # For ModelScopeT2V, some parameters from RunwayML might not directly apply or need defaults.
+            # e.g., duration is controlled by num_frames. Resolution is often fixed by the model.
+            # Using sensible defaults for ModelScopeT2V initially.
+            # These can be exposed as more UI elements later if needed.
+            video_path = generate_video_modelscope(
+                prompt=prompt,
+                output_path=output_filename,
+                model_id=selected_model, # Pass the selected model ID
+                num_inference_steps=25,   # Default from ModelScopeT2V examples
+                guidance_scale=9.0,       # Common default
+                num_frames=duration_sec * 10, # Approximate: 10 FPS default in generate_video_modelscope
+                                             # This links Runway's duration to ModelScope's num_frames somewhat.
+                                             # Max 15s * 10fps = 150 frames. ModelScope example used 200 for long.
+                # seed is implicitly handled by torch if None, or set if provided (generate_video_modelscope doesn't explicitly take seed yet)
+                # Need to update generate_video_modelscope to accept and use the seed. # This is now done.
+                seed=processed_seed
+            )
+
+        else:
+            raise gr.Error(f"Unsupported model selected: {selected_model}")
+
+        if video_path:
+            gr.Info("Video generation complete!")
+            return video_path
+        else:
+            raise gr.Error("Video generation failed to produce a video path.")
+
+    except TaskFailedError as e: # Specific to RunwayML's SDK
         print(f"RunwayML Task Failed: {e}")
         raise gr.Error(f"RunwayML Task Failed: {e.task_details if hasattr(e, 'task_details') else str(e)}")
+    except RuntimeError as e: # Catch CUDA errors from local models, etc.
+        print(f"Runtime Error: {e}")
+        raise gr.Error(f"Runtime Error: {str(e)}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        # Show a generic error in the Gradio interface
+        # Log the full traceback for debugging
+        import traceback
+        traceback.print_exc()
         raise gr.Error(f"An unexpected error occurred: {str(e)}")
 
 # Define Gradio components
+model_selection_input = gr.Dropdown(
+    choices=["RunwayML", "damo-vilab/text-to-video-ms-1.7b"],
+    value="RunwayML",
+    label="Choose Model"
+)
+
 prompt_input = gr.Textbox(label="Text Prompt", placeholder="e.g., A futuristic cityscape")
-duration_input = gr.Slider(minimum=1, maximum=15, value=5, step=1, label="Video Duration (seconds)") # Max duration might depend on model
-resolution_choices = ["1280:720", "720:1280", "1024:1024", "1920:1080"] # Common resolutions
-resolution_input = gr.Dropdown(choices=resolution_choices, value="1280:720", label="Video Resolution (Width:Height)")
 
-# Based on runway_text_to_video.py and docs
-t2i_model_choices = ["gen4_image"] # Currently only one shown in docs, but could expand
-t2i_model_input = gr.Dropdown(choices=t2i_model_choices, value="gen4_image", label="Text-to-Image Model")
-
-i2v_model_choices = ["gen4_turbo", "gen3a_turbo"]
-i2v_model_input = gr.Dropdown(choices=i2v_model_choices, value="gen4_turbo", label="Image-to-Video Model")
-
+# Common parameters (some might be interpreted differently by models)
+duration_input = gr.Slider(minimum=1, maximum=15, value=5, step=1, label="Video Duration (seconds) / Target Length")
 seed_input = gr.Number(label="Seed (0 or empty for random)", value=0)
+
+# RunwayML specific parameters (can be conditionally shown/hidden later)
+# For now, they will be visible but only used if RunwayML is selected.
+runway_resolution_choices = ["1280:720", "720:1280", "1024:1024", "1920:1080"]
+runway_resolution_input = gr.Dropdown(choices=runway_resolution_choices, value="1280:720", label="RunwayML: Video Resolution")
+runway_t2i_model_choices = ["gen4_image"]
+runway_t2i_model_input = gr.Dropdown(choices=runway_t2i_model_choices, value="gen4_image", label="RunwayML: Text-to-Image Model")
+runway_i2v_model_choices = ["gen4_turbo", "gen3a_turbo"]
+runway_i2v_model_input = gr.Dropdown(choices=runway_i2v_model_choices, value="gen4_turbo", label="RunwayML: Image-to-Video Model")
+
+
+# TODO: Add ModelScopeT2V specific parameters if needed (e.g., num_inference_steps, num_frames explicitly)
+# These could be made visible based on model_selection_input using gr.update() in a change event.
 
 video_output = gr.Video(label="Generated Video")
 
 # Create the Gradio interface
 iface = gr.Interface(
     fn=gradio_interface,
-    inputs=[prompt_input, duration_input, resolution_input, t2i_model_input, i2v_model_input, seed_input],
+    inputs=[
+        model_selection_input,
+        prompt_input,
+        duration_input,
+        runway_resolution_input, # For RunwayML
+        runway_t2i_model_input,  # For RunwayML
+        runway_i2v_model_input,  # For RunwayML
+        seed_input
+    ],
     outputs=video_output,
-    title="Text-to-Video Generator using RunwayML",
-    description="Enter a text prompt and parameters to generate a video. Requires RUNWAY_API_KEY environment variable.",
+    title="Text-to-Video Generator",
+    description="""Enter a text prompt and parameters to generate a video.
+Select the generation model (RunwayML or ModelScopeT2V).
+- RunwayML requires RUNWAY_API_KEY environment variable.
+- ModelScopeT2V runs locally, requires a CUDA GPU and may take significant time & resources. Dependencies must be installed from requirements.txt.
+""",
     allow_flagging="never"
 )
 

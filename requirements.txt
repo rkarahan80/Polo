@@ -1,3 +1,11 @@
 runwayml
 requests
 gradio
+diffusers
+transformers
+accelerate
+torch
+einops
+# torchvision and torchaudio might be needed depending on the torch installation method and specific diffusers features.
+# Users might need to install torch separately according to their CUDA version for GPU support.
+# e.g., pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
