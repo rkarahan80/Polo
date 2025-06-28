@@ -1,0 +1,32 @@
+[
+  {
+    "id": "e0faaf0c-a1ec-4fb5-a957-9d5239a8ed33",
+    "name": "Serene Nature",
+    "description": "Peaceful natural scenes",
+    "prompt": "A serene lake at sunset with gentle ripples and mountains in the background",
+    "settings": {},
+    "category": "nature",
+    "createdAt": "2025-06-28T19:13:48.873Z",
+    "isPublic": false
+  },
+  {
+    "id": "f72e0d60-a4b8-496d-910b-6aae3c72d28d",
+    "name": "Urban Cityscape",
+    "description": "Modern city environments",
+    "prompt": "A bustling city street at night with neon lights and traffic",
+    "settings": {},
+    "category": "urban",
+    "createdAt": "2025-06-28T19:13:48.883Z",
+    "isPublic": false
+  },
+  {
+    "id": "351097ff-1a62-4d0c-be15-7ddfc5dae830",
+    "name": "Abstract Motion",
+    "description": "Creative abstract visuals",
+    "prompt": "Colorful abstract shapes flowing and morphing in space",
+    "settings": {},
+    "category": "abstract",
+    "createdAt": "2025-06-28T19:13:48.888Z",
+    "isPublic": false
+  }
+]
