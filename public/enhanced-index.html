@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generation Studio - Enhanced</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="src/styles/new-features.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-video"></i> AI Studio Pro</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="generate">
+                    <i class="fas fa-magic"></i> Generate
+                </li>
+                <li class="nav-item" data-tab="editor">
+                    <i class="fas fa-cut"></i> Video Editor
+                </li>
+                <li class="nav-item" data-tab="collaboration">
+                    <i class="fas fa-users"></i> Collaborate
+                </li>
+                <li class="nav-item" data-tab="projects">
+                    <i class="fas fa-folder"></i> Projects
+                </li>
+                <li class="nav-item" data-tab="history">
+                    <i class="fas fa-history"></i> History
+                </li>
+                <li class="nav-item" data-tab="templates">
+                    <i class="fas fa-bookmark"></i> Templates
+                </li>
+                <li class="nav-item" data-tab="batch">
+                    <i class="fas fa-layer-group"></i> Batch Process
+                </li>
+                <li class="nav-item" data-tab="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </li>
+                <li class="nav-item" data-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 id="page-title">Video Generation</h1>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicator">
+                        <span class="status-dot" id="connection-status"></span>
+                        <span id="status-text">Connected</span>
+                    </div>
+                    <button class="btn btn-primary" id="new-project-btn">
+                        <i class="fas fa-plus"></i> New Project
+                    </button>
+                    <button class="btn btn-secondary" id="toggle-ai-assistant">
+                        <i class="fas fa-robot"></i> AI Assistant
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Generate Tab (Enhanced) -->
+                <div class="tab-pane active" id="generate-tab">
+                    <div class="generation-container">
+                        <div class="generation-form">
+                            <div class="form-section">
+                                <h3>Generation Settings</h3>
+                                
+                                <div class="form-group">
+                                    <label for="generation-type">Generation Type</label>
+                                    <select id="generation-type" class="form-control">
+                                        <option value="text-to-video">Text to Video</option>
+                                        <option value="image-to-video">Image to Video</option>
+                                        <option value="video-to-video">Video to Video</option>
+                                        <option value="style-transfer">Style Transfer</option>
+                                        <option value="motion-brush">Motion Brush</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="model-select">AI Model</label>
+                                    <select id="model-select" class="form-control">
+                                        <option value="RunwayML">RunwayML Gen-4 (Cloud)</option>
+                                        <option value="damo-vilab/text-to-video-ms-1.7b">ModelScope T2V (Local)</option>
+                                        <option value="stable-video-diffusion">Stable Video Diffusion</option>
+                                        <option value="animatediff">AnimateDiff</option>
+                                        <option value="zeroscope">ZeroScope</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="prompt-input">Text Prompt</label>
+                                    <textarea id="prompt-input" class="form-control" rows="3" 
+                                        placeholder="Describe the video you want to generate..."></textarea>
+                                    <div class="prompt-suggestions">
+                                        <button class="suggestion-btn" data-prompt="A serene lake at sunset with gentle ripples">Nature Scene</button>
+                                        <button class="suggestion-btn" data-prompt="Futuristic city with flying cars and neon lights">Sci-Fi City</button>
+                                        <button class="suggestion-btn" data-prompt="A cat playing with a ball of yarn in slow motion">Pet Animation</button>
+                                        <button class="suggestion-btn" data-prompt="Abstract colorful shapes morphing and flowing">Abstract Art</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="image-upload-group" style="display: none;">
+                                    <label for="image-upload">Source Image/Video</label>
+                                    <div class="upload-area" id="upload-area">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Drag & drop files here or click to browse</p>
+                                        <input type="file" id="image-upload" accept="image/*,video/*" hidden>
+                                    </div>
+                                    <div id="upload-preview"></div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="duration-slider">Duration (seconds)</label>
+                                        <input type="range" id="duration-slider" min="1" max="30" value="5" class="slider">
+                                        <span id="duration-value">5s</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="resolution-select">Resolution</label>
+                                        <select id="resolution-select" class="form-control">
+                                            <option value="1280:720">HD (1280x720)</option>
+                                            <option value="1920:1080">Full HD (1920x1080)</option>
+                                            <option value="720:1280">Portrait HD</option>
+                                            <option value="1024:1024">Square</option>
+                                            <option value="2560:1440">2K QHD</option>
+                                            <option value="3840:2160">4K UHD</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="seed-input">Seed (optional)</label>
+                                        <input type="number" id="seed-input" class="form-control" placeholder="Random">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="project-select">Save to Project</label>
+                                        <select id="project-select" class="form-control">
+                                            <option value="">No Project</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Advanced Settings -->
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-secondary" id="toggle-advanced">
+                                        <i class="fas fa-cog"></i> Advanced Settings
+                                    </button>
+                                </div>
+
+                                <div id="advanced-settings" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="guidance-scale">Guidance Scale</label>
+                                            <input type="range" id="guidance-scale" min="1" max="20" value="7.5" step="0.5" class="slider">
+                                            <span id="guidance-value">7.5</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inference-steps">Inference Steps</label>
+                                            <input type="range" id="inference-steps" min="10" max="100" value="25" class="slider">
+                                            <span id="steps-value">25</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="motion-strength">Motion Strength</label>
+                                            <input type="range" id="motion-strength" min="0" max="1" value="0.5" step="0.1" class="slider">
+                                            <span id="motion-value">0.5</span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="noise-level">Noise Level</label>
+                                            <input type="range" id="noise-level" min="0" max="1" value="0.1" step="0.05" class="slider">
+                                            <span id="noise-value">0.1</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button id="generate-btn" class="btn btn-primary btn-large">
+                                        <i class="fas fa-magic"></i> Generate Video
+                                    </button>
+                                    <button id="save-template-btn" class="btn btn-secondary">
+                                        <i class="fas fa-bookmark"></i> Save Template
+                                    </button>
+                                    <button id="enhance-prompt-btn" class="btn btn-secondary">
+                                        <i class="fas fa-wand-magic-sparkles"></i> Enhance Prompt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="generation-preview">
+                            <div class="preview-section">
+                                <h3>Preview</h3>
+                                <div class="video-preview" id="video-preview">
+                                    <div class="preview-placeholder">
+                                        <i class="fas fa-play-circle"></i>
+                                        <p>Generated video will appear here</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="generation-progress" id="generation-progress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progress-fill"></div>
+                                    </div>
+                                    <div class="progress-text" id="progress-text">Initializing...</div>
+                                </div>
+
+                                <div class="preview-actions" id="preview-actions" style="display: none;">
+                                    <button class="btn btn-success" id="download-btn">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                    <button class="btn btn-secondary" id="share-btn">
+                                        <i class="fas fa-share"></i> Share
+                                    </button>
+                                    <button class="btn btn-warning" id="regenerate-btn">
+                                        <i class="fas fa-redo"></i> Regenerate
+                                    </button>
+                                    <button class="btn btn-primary" id="edit-video-btn">
+                                        <i class="fas fa-edit"></i> Edit Video
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Editor Tab -->
+                <div class="tab-pane" id="editor-tab">
+                    <div id="video-editor-container">
+                        <!-- Video editor will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Collaboration Tab -->
+                <div class="tab-pane" id="collaboration-tab">
+                    <div id="collaboration-hub-container">
+                        <!-- Collaboration hub will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Existing tabs remain the same -->
+                <div class="tab-pane" id="projects-tab">
+                    <div class="projects-header">
+                        <h3>My Projects</h3>
+                        <button class="btn btn-primary" id="create-project-btn">
+                            <i class="fas fa-plus"></i> Create Project
+                        </button>
+                    </div>
+                    <div class="projects-grid" id="projects-grid">
+                        <!-- Projects will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div class="tab-pane" id="history-tab">
+                    <div class="history-header">
+                        <h3>Generation History</h3>
+                        <div class="history-filters">
+                            <select id="history-filter" class="form-control">
+                                <option value="all">All Generations</option>
+                                <option value="text-to-video">Text to Video</option>
+                                <option value="image-to-video">Image to Video</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <!-- History items will be loaded here -->
+                    </div>
+                    <div class="pagination" id="history-pagination"></div>
+                </div>
+
+                <!-- Templates Tab -->
+                <div class="tab-pane" id="templates-tab">
+                    <div class="templates-header">
+                        <h3>Prompt Templates</h3>
+                        <button class="btn btn-primary" id="create-template-btn">
+                            <i class="fas fa-plus"></i> Create Template
+                        </button>
+                    </div>
+                    <div class="templates-categories">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="nature">Nature</button>
+                        <button class="category-btn" data-category="urban">Urban</button>
+                        <button class="category-btn" data-category="abstract">Abstract</button>
+                        <button class="category-btn" data-category="custom">Custom</button>
+                    </div>
+                    <div class="templates-grid" id="templates-grid">
+                        <!-- Templates will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Batch Process Tab -->
+                <div class="tab-pane" id="batch-tab">
+                    <div class="batch-header">
+                        <h3>Batch Processing</h3>
+                        <p>Process multiple prompts or images at once</p>
+                    </div>
+                    <div class="batch-container">
+                        <div class="batch-input">
+                            <div class="form-group">
+                                <label>Batch Type</label>
+                                <select id="batch-type" class="form-control">
+                                    <option value="prompts">Multiple Prompts</option>
+                                    <option value="images">Multiple Images</option>
+                                    <option value="style-variations">Style Variations</option>
+                                    <option value="resolution-upscale">Resolution Upscale</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="batch-prompts-group">
+                                <label>Prompts (one per line)</label>
+                                <textarea id="batch-prompts" class="form-control" rows="8" 
+                                    placeholder="Enter prompts, one per line..."></textarea>
+                            </div>
+                            
+                            <div class="form-group" id="batch-files-group" style="display: none;">
+                                <label>Upload Files</label>
+                                <div class="batch-upload-area">
+                                    <input type="file" id="batch-files" multiple accept="image/*,video/*">
+                                    <div class="batch-files-list" id="batch-files-list"></div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" id="start-batch-btn">
+                                <i class="fas fa-play"></i> Start Batch Processing
+                            </button>
+                        </div>
+                        
+                        <div class="batch-progress">
+                            <h4>Batch Progress</h4>
+                            <div class="batch-status" id="batch-status">
+                                <p>No batch processing active</p>
+                            </div>
+                            <div class="batch-queue" id="batch-queue"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div class="tab-pane" id="analytics-tab">
+                    <div class="analytics-header">
+                        <h3>Analytics Dashboard</h3>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h4>Total Generations</h4>
+                            <div class="analytics-value" id="total-generations">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>Active Projects</h4>
+                            <div class="analytics-value" id="total-projects">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>Templates Created</h4>
+                            <div class="analytics-value" id="total-templates">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>Success Rate</h4>
+                            <div class="analytics-value" id="success-rate">100%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-charts">
+                        <div class="chart-container">
+                            <h4>Generations by Model</h4>
+                            <canvas id="models-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4>Recent Activity</h4>
+                            <div id="recent-activity"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-pane" id="settings-tab">
+                    <div class="settings-header">
+                        <h3>Settings</h3>
+                    </div>
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h4>API Configuration</h4>
+                            <div class="form-group">
+                                <label for="runway-api-key">RunwayML API Key</label>
+                                <input type="password" id="runway-api-key" class="form-control" 
+                                    placeholder="Enter your RunwayML API key">
+                            </div>
+                            <div class="form-group">
+                                <label for="openai-api-key">OpenAI API Key (for enhanced prompts)</label>
+                                <input type="password" id="openai-api-key" class="form-control" 
+                                    placeholder="Enter your OpenAI API key">
+                            </div>
+                            <div class="form-group">
+                                <label for="huggingface-token">Hugging Face Token (for local models)</label>
+                                <input type="password" id="huggingface-token" class="form-control" 
+                                    placeholder="Enter your Hugging Face token">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4>Default Settings</h4>
+                            <div class="form-group">
+                                <label for="default-model">Default Model</label>
+                                <select id="default-model" class="form-control">
+                                    <option value="RunwayML">RunwayML</option>
+                                    <option value="damo-vilab/text-to-video-ms-1.7b">ModelScope T2V</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="default-duration">Default Duration</label>
+                                <select id="default-duration" class="form-control">
+                                    <option value="5">5 seconds</option>
+                                    <option value="10">10 seconds</option>
+                                    <option value="15">15 seconds</option>
+                                    <option value="30">30 seconds</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4>AI Assistant Settings</h4>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-ai-suggestions"> 
+                                    Enable AI prompt suggestions
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="auto-enhance-prompts"> 
+                                    Automatically enhance prompts
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-real-time-feedback"> 
+                                    Enable real-time feedback
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4>Collaboration Settings</h4>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-real-time-sync"> 
+                                    Enable real-time collaboration
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="auto-save-projects"> 
+                                    Auto-save project changes
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-version-control"> 
+                                    Enable version control
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4>Storage & Performance</h4>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="auto-cleanup"> 
+                                    Auto-cleanup temporary files
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-gpu"> 
+                                    Enable GPU acceleration (local models)
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="enable-caching"> 
+                                    Enable model caching
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="save-settings-btn">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AI Assistant (will be dynamically inserted) -->
+    <div id="ai-assistant-container"></div>
+
+    <!-- Collaboration Chat (will be dynamically inserted) -->
+    <div id="collaboration-chat-container"></div>
+
+    <!-- Existing Modals -->
+    <div class="modal" id="project-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="project-modal-title">Create New Project</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="project-form">
+                    <div class="form-group">
+                        <label for="project-name">Project Name</label>
+                        <input type="text" id="project-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-description">Description</label>
+                        <textarea id="project-description" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-project-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-project-btn">Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="template-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save as Template</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="template-form">
+                    <div class="form-group">
+                        <label for="template-name">Template Name</label>
+                        <input type="text" id="template-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="template-description">Description</label>
+                        <textarea id="template-description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="template-category">Category</label>
+                        <select id="template-category" class="form-control">
+                            <option value="nature">Nature</option>
+                            <option value="urban">Urban</option>
+                            <option value="abstract">Abstract</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="template-public"> 
+                            Make template public
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-template-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-template-btn-modal">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script src="src/components/VideoEditor.js"></script>
+    <script src="src/components/AIAssistant.js"></script>
+    <script src="src/components/CollaborationHub.js"></script>
+    <script>
+        // Initialize new components when the app loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Video Editor
+            const videoEditor = new VideoEditor();
+            document.getElementById('video-editor-container').innerHTML = videoEditor.createEditorInterface();
+            
+            // Initialize AI Assistant
+            const aiAssistant = new AIAssistant();
+            document.getElementById('ai-assistant-container').innerHTML = aiAssistant.createAssistantInterface();
+            
+            // Initialize Collaboration Hub
+            const collaborationHub = new CollaborationHub();
+            document.getElementById('collaboration-hub-container').innerHTML = collaborationHub.createCollaborationInterface();
+            document.getElementById('collaboration-chat-container').innerHTML = `
+                <div class="collaboration-chat">
+                    <div class="chat-header">
+                        <h4><i class="fas fa-comments"></i> Team Chat</h4>
+                        <button class="chat-toggle" id="chat-toggle">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <div class="chat-content" id="chat-content">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="chat-message other-message">
+                                <div class="message-sender">System</div>
+                                <div class="message-text">Welcome to the collaboration chat! 👋</div>
+                                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Type a message...">
+                            <button id="send-chat-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Make instances globally available
+            window.videoEditor = videoEditor;
+            window.aiAssistant = aiAssistant;
+            window.collaborationHub = collaborationHub;
+            
+            // Setup additional event listeners for new features
+            setupEnhancedFeatures();
+        });
+        
+        function setupEnhancedFeatures() {
+            // Toggle AI Assistant
+            document.getElementById('toggle-ai-assistant')?.addEventListener('click', () => {
+                if (window.aiAssistant) {
+                    window.aiAssistant.toggleAssistant();
+                }
+            });
+            
+            // Toggle Advanced Settings
+            document.getElementById('toggle-advanced')?.addEventListener('click', function() {
+                const advancedSettings = document.getElementById('advanced-settings');
+                const isVisible = advancedSettings.style.display !== 'none';
+                advancedSettings.style.display = isVisible ? 'none' : 'block';
+                this.innerHTML = isVisible ? 
+                    '<i class="fas fa-cog"></i> Advanced Settings' : 
+                    '<i class="fas fa-cog"></i> Hide Advanced Settings';
+            });
+            
+            // Enhanced Prompt Button
+            document.getElementById('enhance-prompt-btn')?.addEventListener('click', function() {
+                const promptInput = document.getElementById('prompt-input');
+                const currentPrompt = promptInput.value;
+                
+                if (!currentPrompt.trim()) {
+                    app.showNotification('Please enter a prompt first', 'warning');
+                    return;
+                }
+                
+                // Simulate AI enhancement
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    const enhancements = [
+                        ', cinematic lighting, 4K quality',
+                        ', dramatic shadows, professional cinematography',
+                        ', golden hour lighting, film grain',
+                        ', slow motion, high detail',
+                        ', vibrant colors, sharp focus'
+                    ];
+                    
+                    const randomEnhancement = enhancements[Math.floor(Math.random() * enhancements.length)];
+                    promptInput.value = currentPrompt + randomEnhancement;
+                    
+                    this.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Enhance Prompt';
+                    this.disabled = false;
+                    
+                    app.showNotification('Prompt enhanced successfully!', 'success');
+                }, 2000);
+            });
+            
+            // Edit Video Button
+            document.getElementById('edit-video-btn')?.addEventListener('click', function() {
+                app.switchTab('editor');
+                app.showNotification('Switched to Video Editor', 'info');
+            });
+            
+            // Advanced settings sliders
+            const sliders = ['guidance-scale', 'inference-steps', 'motion-strength', 'noise-level'];
+            sliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                const valueSpan = document.getElementById(sliderId.replace('-', '-').split('-')[0] + '-value') || 
+                                 document.getElementById(sliderId.replace('-', '-').split('-').slice(0, -1).join('-') + '-value');
+                
+                if (slider && valueSpan) {
+                    slider.addEventListener('input', function() {
+                        valueSpan.textContent = this.value;
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
